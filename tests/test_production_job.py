@@ -58,3 +58,12 @@ def test_progress_ratio_capped_at_one_when_elapsed_exceeds_total():
     )
 
     assert job.progress_ratio == 1.0
+
+
+def test_progress_ratio_returns_one_when_total_minutes_is_zero():
+    job = ProductionJob(
+        order_id="ORD-1", sample_id="SMP-1", shortage=1,
+        actual_quantity=1, total_minutes=0, elapsed_minutes=0,
+    )
+
+    assert job.progress_ratio == 1.0

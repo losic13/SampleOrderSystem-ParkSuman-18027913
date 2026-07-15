@@ -93,6 +93,62 @@ duck-typing으로만 맞춰져 있으면 위반.
 `controller/production_controller.py`의 tick 처리 로직을 직접 읽고, 위 두 단계가 정확히
 구현돼 있는지 확인한다 (grep으로는 판정하기 어려운 항목 — 반드시 코드를 읽을 것).
 
+## 위반 예시 (Before/After)
+
+grep만으로는 놓치기 쉬운 패턴이므로, 아래 구체적인 코드 형태를 기준으로 판정한다.
+
+### 1. 레이어 의존 방향 위반
+
+```python
+# ❌ model/sample.py — model이 repository를 알면 안 됨
+from repository.sample_repository import JsonSampleRepository
+
+# ✅ model/sample.py — dataclass만, 외부 계층 import 없음
+from dataclasses import dataclass
+```
+
+### 2. ABC+구현체 페어링 위반
+
+```python
+# ❌ repository/sample_repository_interface.py 와
+#    repository/json_sample_repository.py 로 파일이 분리됨
+
+# ✅ repository/sample_repository.py 한 파일에 둘 다 정의
+class SampleRepository(ABC): ...
+class JsonSampleRepository(SampleRepository): ...
+```
+
+### 3. Controller 단방향 의존 위반
+
+```python
+# ❌ controller/production_controller.py
+class ProductionController:
+    def __init__(self, order_controller: "OrderController") -> None:  # 역방향 의존
+        self._order_controller = order_controller
+
+# ✅ controller/order_controller.py — 이 방향만 허용
+class OrderController:
+    def __init__(self, order_repo, sample_repo, production_controller: "ProductionController") -> None:
+        self._production_controller = production_controller
+```
+
+### 4. 재고 예약 모델 불변식 위반 (가장 흔한 회귀 패턴 — ConsoleMVC 방식으로 되돌아간 경우)
+
+```python
+# ❌ 재고를 건드리지 않고 상태만 바꿈 — 이중 소비 버그 재발
+if sample.stock < order.quantity:
+    order.status = OrderStatus.PRODUCING
+    self._production_controller.enqueue(order, sample)
+
+# ✅ shortage 계산 후 즉시 0 차감, 생산 완료 시에만 shortage만큼 정산
+if sample.stock < order.quantity:
+    shortage = order.quantity - sample.stock
+    sample.stock = 0
+    self._sample_repo.update(sample)
+    self._production_controller.enqueue(order, sample, shortage)
+    order.status = OrderStatus.PRODUCING
+```
+
 ## 체크리스트
 
 | # | 항목 | Pass 기준 | Fail 시 |
@@ -101,6 +157,17 @@ duck-typing으로만 맞춰져 있으면 위반.
 | 2 | ABC+구현체 페어링 | 각 repository 파일에 ABC와 Json 구현체가 공존 | 분리돼 있거나 ABC 미상속인 파일 보고 |
 | 3 | Controller 단방향 의존 | `ProductionController`가 `OrderController`를 모름, repository는 ABC 타입으로 주입받음 | 위반 지점과 왜 OCP를 해치는지 설명 |
 | 4 | 재고 예약 불변식 | 승인 시 즉시 0 차감 + 큐 등록, 완료 시 shortage만큼 정산 | 어느 단계가 누락/오류인지 구체적으로 지적 |
+
+## 출력 형식
+
+각 위반 사항은 다음 형식으로 보고한다 (위반이 없으면 "위반 없음"만 짧게 보고하고 끝낸다 — 억지로
+지적거리를 만들지 않는다):
+
+```
+[규칙 번호] file:line — 위반 내용 한 줄 요약
+  왜: 이 규칙이 왜 존재하는지 (위 "이 저장소의 아키텍처 규칙" 근거 인용)
+  제안: 구체적으로 어떻게 고치면 되는지 (Before/After 예시 형태)
+```
 
 ## 사용 시점
 

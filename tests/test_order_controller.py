@@ -155,3 +155,29 @@ def test_reject_rejects_unknown_order_id(order_controller):
 def test_release_rejects_unknown_order_id(order_controller):
     with pytest.raises(ValueError):
         order_controller.release("ORD-NOPE")
+
+
+def test_approve_rejects_order_not_in_reserved_status(order_controller, sample_repo):
+    _register_sample(sample_repo, stock=10)
+    order = order_controller.place_order("SMP-001", "Alice", 4)
+    order_controller.approve(order.order_id)
+
+    with pytest.raises(ValueError):
+        order_controller.approve(order.order_id)
+
+
+def test_reject_rejects_order_not_in_reserved_status(order_controller, sample_repo):
+    _register_sample(sample_repo, stock=10)
+    order = order_controller.place_order("SMP-001", "Alice", 4)
+    order_controller.approve(order.order_id)
+
+    with pytest.raises(ValueError):
+        order_controller.reject(order.order_id)
+
+
+def test_release_rejects_order_not_in_confirmed_status(order_controller, sample_repo):
+    _register_sample(sample_repo, stock=10)
+    order = order_controller.place_order("SMP-001", "Alice", 4)
+
+    with pytest.raises(ValueError):
+        order_controller.release(order.order_id)

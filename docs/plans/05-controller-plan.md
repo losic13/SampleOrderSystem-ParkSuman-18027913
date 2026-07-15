@@ -68,6 +68,10 @@
 
 - 2.1 `controller/sample_controller.py`
 - 2.2 `controller/order_controller.py`
+  - 2.2a `place_order` (검증: 미등록 시료/수량 1 미만 거부)
+  - 2.2b `approve` (재고 예약 모델의 핵심 — 충분/부족 두 분기, 이 저장소에서 가장 위험도 높은 로직)
+  - 2.2c `reject`/`release` (단순 상태 전이)
+  - 2.2d `complete_production` (생산 완료 후 재고 복원 + 상태 전환)
 - `pytest -v` 전체 통과 확인 후 **커밋 5b (GREEN)**
 
 ### Phase 3 — REVIEW

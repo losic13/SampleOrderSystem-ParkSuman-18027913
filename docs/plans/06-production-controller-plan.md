@@ -59,6 +59,9 @@ complete_production(job)`(태스크5에서 확정)에 있다. `ProductionControl
 ### Phase 2 — GREEN
 
 - 2.1 `controller/production_controller.py` 구현
+  - 2.1a `enqueue` (실생산량/총생산시간 계산 로직)
+  - 2.1b `list_queue`/`current_job` (단순 조회)
+  - 2.1c `advance_time` (tick 진행 + 완료 판정 + dequeue — 가장 로직이 복잡한 부분)
 - 2.2 태스크5의 `OrderController` 테스트에서 쓰던 fake `production_controller`를 실제
   `ProductionController`로 교체 가능한지 `tests/test_order_controller.py` 재확인 (필요 시 fixture만
   조정, 프로덕션 코드 변경 없음)

@@ -46,6 +46,8 @@ import하지 않는다 (architecture-guardian 검토 대상 — `view → monito
 ### Phase 2 — GREEN
 
 - 2.1 `monitor/monitor_service.py` 구현
+  - 2.1a `count_orders_by_status`
+  - 2.1b `classify_stock`
 - `pytest -v` 전체 통과 확인 후 **커밋 7b (GREEN)**
 
 ### Phase 3 — REVIEW

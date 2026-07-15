@@ -6,6 +6,7 @@ from repository.production_job_repository import JsonProductionJobRepository
 from controller.sample_controller import SampleController
 from controller.order_controller import OrderController
 from controller.production_controller import ProductionController
+from monitor.monitor_service import MonitorService
 
 
 @pytest.fixture
@@ -53,3 +54,8 @@ def order_controller(order_repo, sample_repo, fake_production_controller):
 @pytest.fixture
 def production_controller(production_job_repo):
     return ProductionController(production_job_repo)
+
+
+@pytest.fixture
+def monitor_service(order_repo, sample_repo):
+    return MonitorService(order_repo, sample_repo)

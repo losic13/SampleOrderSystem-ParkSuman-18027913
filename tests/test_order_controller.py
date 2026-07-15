@@ -140,3 +140,18 @@ def test_release_moves_confirmed_order_to_release(order_controller, sample_repo)
     released = order_controller.release(order.order_id)
 
     assert released.status == OrderStatus.RELEASE
+
+
+def test_approve_rejects_unknown_order_id(order_controller):
+    with pytest.raises(ValueError):
+        order_controller.approve("ORD-NOPE")
+
+
+def test_reject_rejects_unknown_order_id(order_controller):
+    with pytest.raises(ValueError):
+        order_controller.reject("ORD-NOPE")
+
+
+def test_release_rejects_unknown_order_id(order_controller):
+    with pytest.raises(ValueError):
+        order_controller.release("ORD-NOPE")

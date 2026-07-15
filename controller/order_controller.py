@@ -41,11 +41,7 @@ class OrderController:
         return self._order_repo.get_by_status(OrderStatus.CONFIRMED)
 
     def approve(self, order_id: str) -> Order:
-        order = self._order_repo.get_by_id(order_id)
-        if order is None:
-            raise ValueError(f"order not found: {order_id}")
-        if order.status != OrderStatus.RESERVED:
-            raise ValueError(f"order is not RESERVED: {order_id} ({order.status.value})")
+        order = self._get_order_in_status(order_id, OrderStatus.RESERVED)
         sample = self._sample_repo.get_by_id(order.sample_id)
 
         if sample.stock >= order.quantity:
@@ -65,11 +61,7 @@ class OrderController:
         return order
 
     def reject(self, order_id: str) -> Order:
-        order = self._order_repo.get_by_id(order_id)
-        if order is None:
-            raise ValueError(f"order not found: {order_id}")
-        if order.status != OrderStatus.RESERVED:
-            raise ValueError(f"order is not RESERVED: {order_id} ({order.status.value})")
+        order = self._get_order_in_status(order_id, OrderStatus.RESERVED)
         order.status = OrderStatus.REJECTED
         self._order_repo.update(order)
         return order
@@ -86,13 +78,19 @@ class OrderController:
         return order
 
     def release(self, order_id: str) -> Order:
+        order = self._get_order_in_status(order_id, OrderStatus.CONFIRMED)
+        order.status = OrderStatus.RELEASE
+        self._order_repo.update(order)
+        return order
+
+    def _get_order_in_status(self, order_id: str, expected_status: OrderStatus) -> Order:
         order = self._order_repo.get_by_id(order_id)
         if order is None:
             raise ValueError(f"order not found: {order_id}")
-        if order.status != OrderStatus.CONFIRMED:
-            raise ValueError(f"order is not CONFIRMED: {order_id} ({order.status.value})")
-        order.status = OrderStatus.RELEASE
-        self._order_repo.update(order)
+        if order.status != expected_status:
+            raise ValueError(
+                f"order is not {expected_status.value}: {order_id} ({order.status.value})"
+            )
         return order
 
     @staticmethod

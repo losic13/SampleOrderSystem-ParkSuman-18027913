@@ -31,6 +31,10 @@ def test_current_job_returns_none_when_queue_empty(production_controller):
     assert production_controller.current_job() is None
 
 
+def test_advance_time_returns_empty_list_when_queue_is_empty(production_controller):
+    assert production_controller.advance_time(10) == []
+
+
 def test_advance_time_increments_elapsed_minutes_of_current_job_only(production_controller):
     production_controller.enqueue("ORD-1", "SMP-1", 1, 1.0, 100.0)
     production_controller.enqueue("ORD-2", "SMP-1", 1, 1.0, 100.0)

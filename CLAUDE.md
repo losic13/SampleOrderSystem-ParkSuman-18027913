@@ -146,6 +146,10 @@ tests/                                          # conftest.py + 계층별 테스
 각 커밋 전 `pytest -v` 통과를 확인한다 (RED 커밋은 예외 — 의도적으로 실패하는 테스트를 커밋).
 push는 매번 사용자 확인 후 진행 (기존 4개 저장소와 동일 패턴).
 
+단위테스트가 딸린 태스크(3~7, 9번)는 RED 커밋 전에 `docs/plans/0N-xxx-plan.md` 형태로 코드
+작성 계획을 먼저 문서화하고 별도 커밋으로 남긴다 (harness engineering으로 개발 과정을 통제하는
+흐름을 git history에서 그대로 확인할 수 있도록 하기 위함 — 예: `docs/plans/03-domain-model-plan.md`).
+
 ## Harness
 
 - `pytest`(단위/종단 테스트) + `pytest-cov`(커버리지, `pyproject.toml`의 `[tool.coverage.*]` 설정 참고)

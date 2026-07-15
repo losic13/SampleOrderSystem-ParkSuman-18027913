@@ -37,6 +37,9 @@ class OrderController:
     def list_reserved(self) -> list[Order]:
         return self._order_repo.get_by_status(OrderStatus.RESERVED)
 
+    def list_confirmed(self) -> list[Order]:
+        return self._order_repo.get_by_status(OrderStatus.CONFIRMED)
+
     def approve(self, order_id: str) -> Order:
         order = self._order_repo.get_by_id(order_id)
         sample = self._sample_repo.get_by_id(order.sample_id)

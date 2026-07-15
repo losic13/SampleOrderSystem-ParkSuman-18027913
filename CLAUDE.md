@@ -15,7 +15,25 @@
 | **SampleOrderSystem** (이 저장소) | 미션2 — 4개 PoC 설계를 계승한 최종 통합 시스템 | **진행 중 — 현재 문서/스캐폴딩만 커밋됨, 구현 시작 전** |
 
 과제 원본 명세: https://pro.mincoding.co.kr/public/upload/nzzlbz2baj.pdf
-제품 요구사항 상세는 `PRD.md` 참고.
+제품 요구사항 상세는 `PRD.md`, 코딩 컨벤션(재사용 가능한 코드 스니펫)은 `CONVENTIONS.md` 참고.
+
+### 과제 진행 유의사항 (PDF 3페이지, 중요 — 절대 위반하지 말 것)
+
+- 안내된 모델만 사용: **Sonnet, Effort: Medium**. Opus 사용 이력이 있거나 모델 사용 이력이 없으면 부정행위로 간주됨
+- 과제 종료 시 Claude Code에서 `/logout` 실행 필요 (이건 사람이 직접 해야 하는 행위이므로 에이전트가 대신할 수 없음 — 사용자에게 상기시킬 것)
+
+### 참고: 형제 저장소 절대 경로 및 git 상태
+
+로컬에 이미 clone/init되어 있으며 각각 완료 상태다. 코드를 import하지는 않지만, 설계를 다시 확인하고
+싶을 때 아래 경로에서 직접 읽으면 된다 (재조사용 Explore 에이전트를 새로 띄울 필요 없음 — 이미 한 번
+전수조사했고 결과는 이 문서와 `CONVENTIONS.md`에 반영돼 있음).
+
+- `C:\reviewer\work\project\ConsoleMVC` — https://github.com/losic13/ConsoleMVC-ParkSuman-18027913
+- `C:\reviewer\work\project\DataPersistence` — https://github.com/losic13/DataPersistence-ParkSuman-18027913
+- `C:\reviewer\work\project\DataMonitor` — https://github.com/losic13/DataMonitor-ParkSuman-18027913
+- `C:\reviewer\work\project\DummyDataGenerator` — https://github.com/losic13/DummyDataGenerator-ParkSuman-18027913
+- 이 저장소(`SampleOrderSystem`)의 origin: https://github.com/losic13/SampleOrderSystem-ParkSuman-18027913
+  (이미 `git remote add`로 연결되어 있었음 — 새로 만들 필요 없음). 기본 브랜치는 `master`.
 
 ## 이번 저장소를 향한 사용자의 명시적 요구사항
 
@@ -132,4 +150,14 @@ python -m pytest --cov      # 커버리지 리포트
 ```
 
 Windows 콘솔 codepage(CP949) 한글 깨짐 이슈는 다른 저장소와 동일하게 `main.py`의
-`sys.stdout/stdin.reconfigure(encoding="utf-8")`로 처리할 예정이다.
+`sys.stdout/stdin.reconfigure(encoding="utf-8")`로 처리할 예정이다. Bash 도구로 직접 실행해 검증할 때는
+`PYTHONUTF8=1 python main.py` / `PYTHONUTF8=1 python -m pytest -v`처럼 환경변수를 붙여야 출력이 안
+깨진다 (코드 문제 아님, ConsoleMVC 작업 때 확인된 터미널 표시 이슈).
+
+## 개발 환경 메모
+
+- Windows 11, Python 3.14.6/3.14.4 (둘 다 PATH에 있음, `python`/`python3` 확인해서 일관되게 사용)
+- `pytest` 9.1.1이 전역에 이미 설치되어 있어 별도 venv 없이 바로 `pytest` 실행 가능 (4개 PoC에서도 그렇게 진행함).
+  `pytest-cov`는 이 저장소에서 처음 쓰므로 실행 전 설치 여부 확인 필요 (`pip show pytest-cov`, 없으면 `pip install -r requirements-dev.txt`)
+- 이 저장소는 아직 `model/`/`repository/`/`controller/`/`monitor/`/`view/`/`main.py`/`tests/`가 전혀 없다
+  (문서/스캐폴딩만 커밋 1개). `CONVENTIONS.md`의 코드 스니펫을 그대로 재사용해 작성 시작하면 된다.

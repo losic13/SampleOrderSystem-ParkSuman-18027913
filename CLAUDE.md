@@ -43,8 +43,11 @@
 - 태스크 단위로 자주 커밋 (아래 "커밋 계획" 참고), 매 태스크 완료 시 검토 요청받고 진행
 
 **진행 방식(중요)**: 이번 저장소는 계획 전체를 한 번에 실행하지 않고, **각 태스크(커밋) 단위로 사용자에게
-검토를 요청한 뒤 다음 단계로 진행**하기로 합의했다. 현재는 계획 승인 후 1번째 태스크(문서/스캐폴딩)만
-완료된 상태이며, 사용자 검토 후 다음 태스크(모델 계층)로 진행할 예정이다.
+검토를 요청한 뒤 다음 단계로 진행**하기로 합의했다. 도메인 코드를 작성하기 전에, "unit test + clean
+code를 엄격히 지킨다"는 요구사항을 프로세스로 강제하기 위해 **개발 하네스(Red-Green-Review 커밋 규율 +
+`architecture-guardian` 프로젝트 스킬)를 먼저 구축**하기로 했다 (아래 "Harness" 섹션 참고). 현재는
+문서/스캐폴딩(1번)과 하네스 구축(2번)까지 완료된 상태이며, 사용자 검토 후 다음 태스크(모델 계층,
+Red-Green-Review 사이클 시작)로 진행할 예정이다.
 
 ## 다른 저장소와의 관계 (설계 계승, 코드 복사 아님)
 
@@ -122,24 +125,66 @@ tests/                                          # conftest.py + 계층별 테스
 
 ## 커밋 계획 (태스크 단위, 매 태스크 후 사용자 검토)
 
-1. ✅ **문서/스캐폴딩** — `.gitignore`, `pyproject.toml`(pytest+coverage), `requirements-dev.txt`, `PRD.md`, `CLAUDE.md` (이 커밋)
-2. ⬜ 도메인 모델 (`model/`) + 단위테스트
-3. ⬜ JSON 저장소 계층 (`repository/` — sample/order/production job) + 단위테스트
-4. ⬜ 시료/주문 컨트롤러 (`controller/sample_,order_` — 재고부족시 재고 즉시 0 차감 포함) + 단위테스트
-5. ⬜ 생산 컨트롤러 (`controller/production_` — FIFO tick 시뮬레이션) + 단위테스트
-6. ⬜ 모니터링 서비스 (`monitor/`) + 단위테스트
-7. ⬜ 콘솔 뷰 + 진입점 (`view/`, `main.py`) + 수동 시나리오 검증
-8. ⬜ 종단 시나리오 테스트 + `/verify` 스킬 1차 호출
-9. ⬜ CLAUDE.md 최종화(전체 구현 반영) + README.md
+단위테스트가 실제로 작성되는 태스크(3~7, 9번)는 **Red-Green-Review 3커밋**으로 세분화한다
+(아래 "Harness" 섹션 참고). 콘솔 I/O 배선(7번)과 문서 작업(9번)은 테스트로 검증하기 어렵거나
+코드가 아니므로 기존처럼 1커밋을 유지한다.
 
-각 커밋 전 `pytest -v` 통과를 확인한다. push는 매번 사용자 확인 후 진행 (기존 4개 저장소와 동일 패턴).
+1. ✅ **문서/스캐폴딩** — `.gitignore`, `pyproject.toml`(pytest+coverage), `requirements-dev.txt`, `PRD.md`, `CLAUDE.md`
+2. ✅ **개발 하네스 구축** — `architecture-guardian` 프로젝트 스킬, Red-Green-Review 커밋 규율 확정 (이 커밋)
+3. ⬜ 도메인 모델 (`model/`)
+   - 3a. RED (실패하는 단위테스트 작성)
+   - 3b. GREEN (테스트를 통과시키는 최소 구현)
+   - 3c. REVIEW (`architecture-guardian` + `code-review`/`simplify` 검토 반영 리팩터링 — 변경 없으면 생략 가능)
+4. ⬜ JSON 저장소 계층 (`repository/` — sample/order/production job) — RED/GREEN/REVIEW
+5. ⬜ 시료/주문 컨트롤러 (`controller/sample_,order_` — 재고부족시 재고 즉시 0 차감 포함) — RED/GREEN/REVIEW
+6. ⬜ 생산 컨트롤러 (`controller/production_` — FIFO tick 시뮬레이션) — RED/GREEN/REVIEW
+7. ⬜ 모니터링 서비스 (`monitor/`) — RED/GREEN/REVIEW
+8. ⬜ 콘솔 뷰 + 진입점 (`view/`, `main.py`) + 수동 시나리오 검증 (1커밋)
+9. ⬜ 종단 시나리오 테스트 — RED/GREEN/REVIEW + `/verify` 스킬 1차 호출
+10. ⬜ CLAUDE.md 최종화(전체 구현 반영) + README.md (1커밋)
+
+각 커밋 전 `pytest -v` 통과를 확인한다 (RED 커밋은 예외 — 의도적으로 실패하는 테스트를 커밋).
+push는 매번 사용자 확인 후 진행 (기존 4개 저장소와 동일 패턴).
 
 ## Harness
 
 - `pytest`(단위/종단 테스트) + `pytest-cov`(커버리지, `pyproject.toml`의 `[tool.coverage.*]` 설정 참고)
 - 프로젝트 전용 verify 스킬은 새로 작성하지 않고, 전역 `/verify` 스킬을 이 저장소에서 처음 호출할 때
-  자동으로 부트스트랩되는 프로젝트 전용 스킬을 활용한다 (pytest 실행 + `main.py` 스모크 실행). 8번 태스크
+  자동으로 부트스트랩되는 프로젝트 전용 스킬을 활용한다 (pytest 실행 + `main.py` 스모크 실행). 9번 태스크
   전후, 그리고 마지막에 한 번씩 호출 예정.
+
+### 코드 품질 검토 스킬 (신규 1개 + 기존 2개 재사용)
+
+시행착오 끝에 신규 스킬은 **`architecture-guardian` 1개만** 만들기로 했다. clean code 검토와
+OCP 등 원칙 검토를 별도 스킬로 나누는 안도 검토했으나, 전역 `code-review`(버그+재사용/단순화/효율성)와
+`simplify`(재사용/단순화/효율/altitude)가 이미 clean code 관점을 상당 부분 커버하므로 중복 스킬을
+또 만들 필요가 없다고 판단했다. 이 저장소에서 기존 전역 스킬이 다루지 못하는 진짜 프로젝트 고유의
+관심사(OCP/SOLID + MVC 레이어링 + 재고 예약 모델 불변식)만 신규 스킬로 좁혔다.
+
+- **`architecture-guardian`** (신규, 저장소 내 `.claude/skills/architecture-guardian/SKILL.md`):
+  레이어 의존 방향(`view → controller → repository/monitor → model`), repository ABC+구현체
+  페어링, `ProductionController`/`OrderController` 단방향 의존(OCP), 재고 예약 모델 불변식을
+  검토한다. Red-Green-Review의 REVIEW 단계에서 사용.
+- **`code-review`/`simplify`** (기존 전역 스킬 재사용): 버그, 재사용/중복, 효율성, 단순화 관점은
+  이 두 스킬로 커버하고 별도 스킬을 만들지 않는다.
+
+"요구사항대로 개발하는 역할"과 "계획대로 진행되는지 체크하는 역할"도 별도 스킬로 만들지 않기로 했다:
+전자는 Red-Green-Review의 Green 단계를 수행하는 메인 에이전트의 기본 역할이고, 후자는 네이티브
+`TaskCreate`/`TaskUpdate`로 태스크를 추적하면서 위 "커밋 계획" 체크리스트와 대조하는 것으로 충분하다.
+새 스킬을 계속 늘리는 것 자체가 이 프로젝트가 지향하는 "불필요한 추상화 금지" clean code 원칙에
+어긋나기 때문이다.
+
+### Red-Green-Review 사이클
+
+단위테스트가 실제로 작성되는 태스크(위 "커밋 계획"의 3~7, 9번)에 한해 3커밋 규율을 적용한다.
+콘솔 뷰/진입점(8번, I/O 배선이라 테스트 검증이 어려움)과 문서 최종화(10번, 코드가 아님)는 적용하지
+않고 기존처럼 1커밋으로 처리한다.
+
+1. **RED**: 실패하는 단위테스트를 먼저 작성하고 커밋한다 (`pytest -v`가 실패하는 상태 그대로 커밋 —
+   테스트가 의도대로 실패하는지 확인 후 커밋).
+2. **GREEN**: 테스트를 통과시키는 최소 구현을 작성하고 커밋한다 (`pytest -v` 통과 확인 후 커밋).
+3. **REVIEW**: `architecture-guardian` + `code-review`/`simplify` 스킬로 검토받고, 지적된 사항을
+   반영한 리팩터링을 커밋한다 (지적 사항이 없으면 이 커밋은 생략 가능 — 빈 커밋을 만들지 않는다).
 
 ## 실행 / 검증 방법 (구현 완료 후)
 

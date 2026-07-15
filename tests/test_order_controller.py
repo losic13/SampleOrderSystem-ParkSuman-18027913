@@ -27,6 +27,17 @@ def test_place_order_creates_reserved_order(order_controller, sample_repo):
     assert order.quantity == 3
 
 
+def test_list_reserved_returns_only_reserved_orders(order_controller, sample_repo):
+    _register_sample(sample_repo, stock=10)
+    reserved = order_controller.place_order("SMP-001", "Alice", 3)
+    confirmed = order_controller.place_order("SMP-001", "Bob", 2)
+    order_controller.approve(confirmed.order_id)
+
+    result = order_controller.list_reserved()
+
+    assert [o.order_id for o in result] == [reserved.order_id]
+
+
 def test_place_order_rejects_unregistered_sample(order_controller):
     with pytest.raises(ValueError):
         order_controller.place_order("NOPE", "Alice", 3)

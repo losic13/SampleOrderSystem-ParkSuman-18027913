@@ -46,8 +46,11 @@ def test_full_order_lifecycle_from_reservation_to_release_via_production_queue(t
     assert job.actual_quantity == 14
     assert job.total_minutes == 140
 
+    # 재고가 정확히 0이 됐으므로 PRD §8 우선순위상 "고갈"이 맞다 (RESERVED 수요가 전혀 없더라도
+    # 재고 0은 항상 고갈 — PRODUCING 수량이 부족 판정에서 제외되는지는 test_monitor_service.py의
+    # 전용 테스트가 재고가 0이 아닌 케이스로 별도 검증한다).
     stock_state_while_producing = monitor_service.classify_stock()
-    assert stock_state_while_producing["SMP-001"] == "여유"
+    assert stock_state_while_producing["SMP-001"] == "고갈"
 
     partial_completion = production_controller.advance_time(50)
     assert partial_completion == []

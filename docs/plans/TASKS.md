@@ -11,8 +11,8 @@
 | 3 | 도메인 모델 (`model/`) — GREEN | `03-domain-model-plan.md` | ✅ 완료 |
 | 3 | 도메인 모델 (`model/`) — REVIEW | `03-domain-model-plan.md` | ✅ 완료 |
 | 4 | JSON 저장소 계층 (`repository/`) | `04-repository-plan.md` | ✅ 완료 (REVIEW 지적사항 없어 생략) |
-| 5 | 시료/주문 컨트롤러 (`controller/sample_,order_`) | `05-controller-plan.md` | ⬜ 진행 중 |
-| 6 | 생산 컨트롤러 (`controller/production_`) | `06-production-controller-plan.md` | ⬜ 대기 |
+| 5 | 시료/주문 컨트롤러 (`controller/sample_,order_`) | `05-controller-plan.md` | ✅ 완료 |
+| 6 | 생산 컨트롤러 (`controller/production_`) | `06-production-controller-plan.md` | ⬜ 진행 중 |
 | 7 | 모니터링 서비스 (`monitor/`) | `07-monitor-plan.md` | ⬜ 대기 |
 | 8 | 콘솔 뷰 + 진입점 (`view/`, `main.py`) | - | ⬜ 대기 |
 | 9 | 종단 시나리오 테스트 | `09-end-to-end-plan.md` | ⬜ 대기 |

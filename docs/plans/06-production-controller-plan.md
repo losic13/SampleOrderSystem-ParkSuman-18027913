@@ -19,7 +19,7 @@ complete_production(job)`(태스크5에서 확정)에 있다. `ProductionControl
 ### `controller/production_controller.py`
 
 - 생성자: `ProductionController(production_job_repo)`
-- `enqueue(order_id, sample_id, shortage, yield_rate, total_avg_production_time) -> ProductionJob`
+- `enqueue(order_id, sample_id, shortage, yield_rate, avg_production_time) -> ProductionJob`
   - `actual_quantity = math.ceil(shortage / yield_rate)` (PRD §7)
   - `total_minutes = round(avg_production_time * actual_quantity)` — 분 단위 정수로 저장
     (`ProductionJob.total_minutes: int`이므로 반올림. 소수점 처리 방식은 GREEN 단계에서 확정하고
@@ -34,7 +34,9 @@ complete_production(job)`(태스크5에서 확정)에 있다. `ProductionControl
   - `is_complete`가 되면 repo에서 `delete`(큐에서 제거)하고 완료 목록에 추가, 완료 목록을 반환
   - 한 번의 `advance_time` 호출로 여러 작업이 연쇄 완료될 가능성은 다루지 않는다 (분 입력이 항상
     현재 작업 하나를 완료시키는 정도로 사용된다고 가정 — PRD 비목표 항목과 일관되게 단순 모델 유지.
-    만약 초과분 분(minute)이 다음 작업으로 이월돼야 한다는 요구가 나오면 이 가정을 재검토해야 함)
+    현재 작업의 `total_minutes`를 초과하는 분을 입력해도 초과분은 다음 작업으로 이월되지 않고
+    버려진다 — **사용자 확인 완료된 의도적 단순화**. 만약 초과분이 다음 작업으로 이월돼야 한다는
+    요구가 나오면 이 가정을 재검토해야 함)
 
 ## Phase 세분화
 

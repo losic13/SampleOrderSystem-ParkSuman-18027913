@@ -46,6 +46,8 @@ ConsoleMVC/DataPersistence 두 저장소에서 완전히 동일했던 ABC+구현
   - `test_get_all_preserves_fifo_insertion_order`
   - `test_update_persists_elapsed_minutes`
   - `test_delete_removes_job`
+  - `test_add_persists_enqueued_at_datetime_across_reload` (새 repository 인스턴스로 재로드해
+    `enqueued_at` 직렬화 왕복 확인 — order_repository의 동일 테스트와 대칭)
 - `repository/` 파일이 없으므로 전부 `ModuleNotFoundError`로 실패하는 것 확인 후 **커밋 4a (RED)**
 
 ### Phase 2 — GREEN

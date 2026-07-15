@@ -50,14 +50,17 @@ class ConsoleView:
         if choice == "1":
             sample_id = input("시료 ID: ").strip()
             name = input("이름: ").strip()
-            avg_production_time = float(input("평균 생산시간(분): ").strip())
-            yield_rate = float(input("수율(0~1): ").strip())
-            stock_input = input("초기 재고(엔터=0): ").strip()
-            stock = int(stock_input) if stock_input else 0
-            sample = self._sample_controller.register(
-                sample_id, name, avg_production_time, yield_rate, stock
-            )
-            print(f"등록됨: {sample}")
+            try:
+                avg_production_time = float(input("평균 생산시간(분): ").strip())
+                yield_rate = float(input("수율(0~1): ").strip())
+                stock_input = input("초기 재고(엔터=0): ").strip()
+                stock = int(stock_input) if stock_input else 0
+                sample = self._sample_controller.register(
+                    sample_id, name, avg_production_time, yield_rate, stock
+                )
+                print(f"등록됨: {sample}")
+            except ValueError as e:
+                print(f"등록 실패: {e}")
         elif choice == "2":
             for sample in self._sample_controller.list_all():
                 print(f"{sample.sample_id} | {sample.name} | 재고 {sample.stock}")
@@ -69,8 +72,8 @@ class ConsoleView:
     def _handle_place_order(self) -> None:
         sample_id = input("시료 ID: ").strip()
         customer_name = input("고객명: ").strip()
-        quantity = int(input("수량: ").strip())
         try:
+            quantity = int(input("수량: ").strip())
             order = self._order_controller.place_order(sample_id, customer_name, quantity)
             print(f"주문 접수됨: {order.order_id}")
         except ValueError as e:
@@ -122,7 +125,11 @@ class ConsoleView:
 
         choice = input("\n[T]시간 경과 [0]뒤로: ").strip().upper()
         if choice == "T":
-            minutes = int(input("경과시킬 분: ").strip())
+            try:
+                minutes = int(input("경과시킬 분: ").strip())
+            except ValueError:
+                print("숫자를 입력하세요.")
+                return
             completed_jobs = self._production_controller.advance_time(minutes)
             for job in completed_jobs:
                 order = self._order_controller.complete_production(job)

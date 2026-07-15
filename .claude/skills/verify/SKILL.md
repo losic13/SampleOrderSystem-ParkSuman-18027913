@@ -74,7 +74,7 @@ printf '1\n...\n0\n' | PYTHONUTF8=1 python main.py
 | 단위테스트 (RED) | `PYTHONUTF8=1 python -m pytest -v` | 새 테스트가 의도한 이유로 실패 |
 | 단위테스트 (GREEN/REVIEW) | `PYTHONUTF8=1 python -m pytest -v` | 전체 통과 |
 | 커버리지 | `PYTHONUTF8=1 python -m pytest --cov` | 새 코드 라인이 미커버로 남지 않음 |
-| 콘솔 스모크 (7번 태스크 이후) | `printf ... \| PYTHONUTF8=1 python main.py` | 메뉴 흐름 1개가 에러 없이 끝까지 진행 |
+| 콘솔 스모크 (8번 태스크 이후) | `printf ... \| PYTHONUTF8=1 python main.py` | 메뉴 흐름 1개가 에러 없이 끝까지 진행 |
 | 데이터 오염 | `git status` | `data/*.json`이 커밋 대상에 없음 |
 
 ## 호출 시점

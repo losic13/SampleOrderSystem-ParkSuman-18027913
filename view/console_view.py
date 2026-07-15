@@ -86,12 +86,15 @@ class ConsoleView:
 
         order_id = input("주문 ID: ").strip()
         decision = input("[A]승인 [R]거절: ").strip().upper()
-        if decision == "A":
-            order = self._order_controller.approve(order_id)
-            print(f"승인됨: {order.order_id} -> {order.status.value}")
-        elif decision == "R":
-            order = self._order_controller.reject(order_id)
-            print(f"거절됨: {order.order_id} -> {order.status.value}")
+        try:
+            if decision == "A":
+                order = self._order_controller.approve(order_id)
+                print(f"승인됨: {order.order_id} -> {order.status.value}")
+            elif decision == "R":
+                order = self._order_controller.reject(order_id)
+                print(f"거절됨: {order.order_id} -> {order.status.value}")
+        except ValueError as e:
+            print(f"처리 실패: {e}")
 
     def _handle_monitoring(self) -> None:
         counts = self._monitor_service.count_orders_by_status()
@@ -134,5 +137,8 @@ class ConsoleView:
             print(f"{order.order_id} | {order.sample_id} | 수량 {order.quantity} | {order.customer_name}")
 
         order_id = input("출고 처리할 주문 ID: ").strip()
-        order = self._order_controller.release(order_id)
-        print(f"출고 완료: {order.order_id} -> {order.status.value}")
+        try:
+            order = self._order_controller.release(order_id)
+            print(f"출고 완료: {order.order_id} -> {order.status.value}")
+        except ValueError as e:
+            print(f"처리 실패: {e}")

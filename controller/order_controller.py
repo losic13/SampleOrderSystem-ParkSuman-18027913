@@ -42,6 +42,8 @@ class OrderController:
 
     def approve(self, order_id: str) -> Order:
         order = self._order_repo.get_by_id(order_id)
+        if order is None:
+            raise ValueError(f"order not found: {order_id}")
         sample = self._sample_repo.get_by_id(order.sample_id)
 
         if sample.stock >= order.quantity:
@@ -62,6 +64,8 @@ class OrderController:
 
     def reject(self, order_id: str) -> Order:
         order = self._order_repo.get_by_id(order_id)
+        if order is None:
+            raise ValueError(f"order not found: {order_id}")
         order.status = OrderStatus.REJECTED
         self._order_repo.update(order)
         return order
@@ -79,6 +83,8 @@ class OrderController:
 
     def release(self, order_id: str) -> Order:
         order = self._order_repo.get_by_id(order_id)
+        if order is None:
+            raise ValueError(f"order not found: {order_id}")
         order.status = OrderStatus.RELEASE
         self._order_repo.update(order)
         return order

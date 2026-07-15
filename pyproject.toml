@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["model", "repository", "controller", "monitor", "view"]
+
+[tool.coverage.report]
+show_missing = true
